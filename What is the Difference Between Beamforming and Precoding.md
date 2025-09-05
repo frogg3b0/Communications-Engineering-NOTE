@@ -17,6 +17,8 @@
 根據這個觀點:  
 * Precoding = digital beamforming: 由於數位波束成形可以實現 Spatial Multiplexing ，即同時「向多個使用者」傳輸「多個獨立的資料流」，因此預編碼特別適用於此類應用。
 <img width="482" height="251" alt="image" src="https://github.com/user-attachments/assets/ca635864-eab7-4881-9398-8c9a42970785" />
+1. 左圖可理解成: 所有天線一起發送「同一個訊號」，差別在於它們被個別乘上某個 weight / phase
+2. 右圖可理解成: 所有天仙個別發送「不同的訊號」
 
 
 
@@ -47,3 +49,25 @@
 * 單流 vs. 多流：波束成形通常指發射單一、高指向性的訊號；預編碼則指疊加多個波束，實現多個資料流的空間復用。
 * 視距 vs. 廣泛應用：波束成形可能被限制在視距通訊的應用中；預編碼則是一個更廣泛的概念，能適用於多路徑複雜的非視距通訊環境。
 * 部分 vs. 整體：預編碼被視為一個包含「波束成形」（選擇方向性）和「功率分配」的完整過程。
+
+***
+
+## 補充說明
+### 什麼是 Hybrid Beamforming?
+在大規模 MIMO 系統（例如 mmWave 或 6G 中的 ISAC 應用）中，傳統的 fully digital beamforming 會「為每根天線配置一條數位 RF Chain」（包含 DAC/ADC、混頻器、放大器等）。但這樣做：成本高、耗能高、硬體複雜度極高  
+
+因此，為了節省成本與功耗，Hybrid Beamforming 應運而生，它結合了：  
+* 數位 baseband beamformer（用較少的 RF chain 在 baseband 執行 beamforming）
+* 類比 RF beamformer（使用相位器控制天線信號相位）
+
+### Fully-Connected Hybrid Beamforming 架構的定義
+在 fully-connected 架構中：  
+* 每一條 RF chain 都會有一組 analog phase shifters
+* 每一條 RF chain 都會與所有天線相連。
+    * 每條 RF chain 負責控制所有天線的訊號相位。
+ 
+### 數學描述總 analog phase shifter
+若系統有：𝑈 條 RF 鏈 、 𝑁𝑡 根 傳送天線，則需要的 analog phase shifter 數量為: 𝑈×𝑁𝑡  
+
+* 實際舉例說明: 假設系統有 8 根傳送天線 & 2 條 RF Chain
+* 總相位器數量：2 (RF chains)×8 (antennas)=16 個 analog phase shifters
