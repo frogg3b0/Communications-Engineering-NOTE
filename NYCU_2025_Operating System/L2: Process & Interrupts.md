@@ -328,3 +328,42 @@ Termination occurs when **the process or C compiler call `exit()`**
 * Concept 2: Schedule processes for infinitely small durations (意思是如果要做到理想化的多工，應該是每個 process 都能「無限小時間」地不斷被輪流執行)
 
 #### CFS 的運作邏輯
+1. 系統會記錄每個 process 的 **virtual runtime**
+2. 用一顆 **Red-Black Tree** ，根據這些 process 目前的 runtime 排序
+3. 每次都從樹中，拿出 CPU 用量最少的 process 來執行
+4. 執行完就更新該 process runtime
+這樣能做到近似公平的排程
+
+#### 甚麼是 Virtual Runtime?
+- Theory Vruntime += `delta_exec * (NICE_0_Weight/NICE_Weight)`
+    - 我們每次都會挑選**最小`vruntime`的process來執行**
+    - 這個`vruntime`會越加越大，差別在於每個process上升幅度不同
+    - 每個process都會有它"實際執行的時間"以及它的"nice value"
+        - 這個nice value會對應到某個實數，nice value越大則權重越小
+    - 根據上面的敘述，我們每次執行完某個process之後，都會在vruntime再加上某個值
+        - 如果nice value越小(優先度越高；分母的weight越大)，導致vruntime增加的幅度會更小
+        - 反之nice value越大(優先度越低；分母的weight越小)，導致vruntime增加的幅度會更大
+        - 於是優先度高的process仍然可以先執行，但不會永遠壟斷CPU，因為它的vruntime依然在上升
+    - 執行完該process之後，又會再一次重新挑選vruntime最小的process來執行
+- Practical Vruntime += (delta_exec * NICE_0_Weight * 2^32/NICE_Weight) >> 32
+        - `delta_exec`: 這次執行了多久
+        - `NICE_0_Weight`: nice value=0 的權重 (基準值，通常是 1024)
+        - `NICE_Weight`這個 process 的 nice value 對應的權重
+
+- Allocated CPU time
+    - `Allocated_CPU_Time = __sched_period() * (NICE_Weight /NICE_k_Weight)`
+        - `__sched_period()`: CPU週期長度
+
+### 該如何從nice value計算nice weight，進一步求出 CPU time
+- 從 CPU time 的觀點: 以 nice value = 0 為基準，每移動一級就會**增加/減少 CPU 時間**，因此稱為**Follow the 10% effect**
+- 從 nice weight 的觀點: weight(n) = 1024 x (1.25)^(-n)
+以上兩點是可以互推的
+
+<img width="964" height="1218" alt="image" src="https://github.com/user-attachments/assets/b1532391-fa31-400c-979c-cdec94337545" />    
+
+---
+前面介紹完了 Linux 作業系統不同時期的 Process Scheduler 設計演進，接著要進一步介紹**即時排程政策**    
+
+## Realtime Scheduling Policies
+
+
