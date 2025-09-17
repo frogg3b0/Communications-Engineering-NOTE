@@ -43,33 +43,60 @@
 
 ***
 
-有了這些基本觀念之後，接下來就可以進入 OFDM 的領域
+## 數位通訊系統流程圖
 
-## OFDM
-### OFDM 定義 (Orthogonal Frequency Division Multiplexing)
+
+
+***
+
+### Source code
+目的: 將 source bit 轉換成一串數位序列，以達到**壓縮資料**
+例子: Huffman Encoding
+* 將 source bit 依照其出線機率做排序
+* 整體希望出線機率越高的 source bit 可以用更短的 code 組合
+
+***
+
+### Channel code 
+目的: 處理雜訊對通道的影響，降低**位元錯誤率**
+
+#### 通道編碼有兩種
+1. 錯誤更正碼,FEC (Forward error correction)
+    1. LDPC (n,k block code): 在原有 *k* bit 的訊息源，將其編碼成 *n* bit 的 codeword，以達到錯誤更正的效果
+    2. Convolution code
+2. ARQ
+
+***
+
+### Interleaving
+
+***
+
+### OFDM
+#### OFDM 定義 (Orthogonal Frequency Division Multiplexing)
 
 將系統的頻寬拆分成很多個 subcarrier ，這些 subcarrier 會互相正交，並且頻寬相對於原本的單一載波還要小很多，也就是說我們把一個 widband channel切成多個 narrowband channel
 * 此時每個 subcarrier 的峰值會落在其他 subcarrier 的 null
 * subcarrier 會互相正交不干擾彼此
 * 因此不需要「guard band」
 
-### 這樣做的用意是甚麼?
+#### 這樣做的用意是甚麼?
 * 更小的頻寬代表更接近 coherence bandwidth
 * 因此就可以解決 frequency-selective fading 的問題
 * 因為這個原因，導致 MIMO 常常會和 OFDM 一起出現
 
-### 為何 MIMO 需要 OFDM (需要 flat fading)
+#### 為何 MIMO 需要 OFDM (需要 flat fading)
 * 如果是 frequency-selective fading(代表$W_c$很小/Doppler Spread很大)會導致嚴重 ISI ，此時的 MIMO 檢測要同時處理「空間 + 時間」的干擾，幾乎不可行
 * 因此我們使用 MIMO system 的時候，都會希望它建立在 flat fading 的情況下
 * 這也就是 MIMO-OFDM 的由來: OFDM 解決「頻率選擇性衰落」，MIMO 專心發揮空間自由度 (diversity/spatial multiplexing)
 
-### OFDM Tranceiver 架構
+#### OFDM Tranceiver 架構
 <img width="1006" height="403" alt="image" src="https://github.com/user-attachments/assets/c629b1a0-2d1a-4f4c-8667-4eda1ff2dede" />
 
-#### IDFT: 
+##### IDFT: 
 我們會把一個個的 data symbol(e.g., QAM. PSK) 乘在個別的 subcarrier上，這件事情其實等價於在 time domain 把 symbols 作為 IDFT 基底的係數，最後做 IFFT/IDFT 合成出時域波形  
 
-#### Add CP:
+##### Add CP:
 * 為何要使用 Cyclic prefix?
     * 因為「**multipath**」，導致在時域上相鄰的 OFDM symbol 會互相干擾 -> **產生ISI**
     * 為了避免**ISI**，我們會在相鄰的 OFDM symbol 之間預留一段**guard period** -> **解決ISI**
@@ -82,13 +109,13 @@
     * CP 是「冗餘訊號」，並不攜帶額外資訊，導致有效頻譜效率下降
 
 ***
-## 接收端設計
-## Equalizer
+### 接收端設計
+### Equalizer
 Equalizer 的目的就是 補償通道的影響，不管是 ZF 還是 MMSE，都需要知道通道響應 𝐻 
 * 所以，沒有通道資訊 (CSI, Channel State Information)，就沒辦法正確設計 equalizer
 * 因此在這之前，通常需要進行 channel estimation
 
-### Zero Forcing Equalizer
+#### Zero Forcing Equalizer
 **原理**：  
 希望完全消除通道的影響，把接收訊號除以通道響應：
 
@@ -108,7 +135,7 @@ $$
 
 ***
 
-### MMSE Equalizer (LMMSE)
+#### MMSE Equalizer (LMMSE)
 **原理**：  
 在消除通道影響的同時，考慮雜訊的存在，目標是最小化 MSE：
 
@@ -124,7 +151,7 @@ $$
 ***
 
 
-### SIC
+#### SIC
 **原理**：   
 逐步偵測多個符號流，每次先偵測一個，再把已檢測出的訊號重建並扣除，然後再偵測剩下的
 * MIMO 檢測 → V-BLAST 架構就是 LMMSE + SIC 的典型例子
