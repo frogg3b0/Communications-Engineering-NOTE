@@ -95,8 +95,40 @@ $$
 所以，LTI 系統的輸出 **等於輸入和系統脈衝響應的卷積**。
 
 ***
+## Ch3 Z-transform
+
+### 基本觀念
+* Right-side sequence : x[n]=0, for all n<N (代表只有在右側序列有值)
+* Left-side sequence : x[n]=0, for all n>N 
+    * 此處的 *N* 不一定是原點
+
+### 收斂範圍
+* z-transform 的收斂範圍是圓，這當中又分成圓內/圓外
+* 因為不同的 x[n] 可能會有相同的 X(z)
+    * 因此要 determined 某個 X(z)， 必須要知道 **x[n]** and **ROC**
+ 
+### 收斂範圍的特性
+1. 收斂範圍取決於 |z|
+2. ROC 不可以包含 pole
+3. "Fourier transform 存在" iff "ROC 包含單位圓"
+
+* Right-side sequence 的 ROC : 在最外側的 pole 的外側
+* Left-side sequence 的 ROC : 在最內側的 pole 的內側
+
+* Stability LTI system: ROC 包含單位圓
+* Causal LTI system: ROC 在最外側的 pole 的外側
 
 
+### Zero and pole of rational system
+
+$$
+H(z) = \frac{B(z)}{A(z)} 
+= c \frac{\prod_{i=1}^M (z - \bar{z}_i)}{\prod_{i=1}^N (z - z_i)}
+$$
+
+* Zero 的數量 = Pole 的數量
+* 若 $N > M$，則在 $z = \infty$ 有 $N-M$ 個零點 (zeros)
+* 若 $N < M$，則在 $z = \infty$ 有 $M-N$ 個極點 (poles)
 
 
 ***
@@ -124,4 +156,60 @@ $$
   2. 通過類比濾波器 $H_v(j\Omega)$（矩形低通，高度 $T_s$），得到 $x_r(t)$
  
   <img width="959" height="734" alt="image" src="https://github.com/user-attachments/assets/d85c1731-e4a5-491e-a65b-82f4552f3218" />
+
+***
+
+## Ch5 LTI Analysis
+
+### Effect of Phase Response
+
+* Zero phase : 不影響系統 e.g., Ideal lowpass filter (frequency domain上)
+* Linear phase : 在  time-domain 為 **delay**，代表輸出只是「輸入延遲 + 相位平移」，**不會造成波形失真**
+* Nonlinear phase : 需透過 **group delay**理解
+    * group delay : 用來衡量相位響應是否「接近線性」，如果群延遲是常數，就代表相位是線性的。
+
+***
+
+### 濾波器設計中的 Pole 與 Zero 配置對頻帶的影響
+* Pole 會讓增益變大 → 因此會放在 passband
+* Zero 會讓增益變小 → 因此會放在 stopband
+    * 所以，透過配置 pole 與 zero，可以控制濾波器的幅度響應
+    * 如果 transition band 很窄代表一群 pole 會聚集在 passband edge 附近；一群 zero 會聚集在 stopband edge 附近
+  
+<img width="490" height="171" alt="image" src="https://github.com/user-attachments/assets/e2a648fc-671f-483a-b52b-778149eb6f5c" />  
+
+***
+## FIR Linear Phase 專區
+
+### Linear Phase -> FIR linear phase filter 的四種 type
+
+#### 1. 若系統頻率響應為 linear phase
+
+$$
+\angle H(e^{j\omega}) = \alpha \omega + \beta
+$$
+
+
+
+#### 2. 推出時域條件
+因為系統頻率響應為 linear phase，所以經過推導可得：  
+
+$$
+h[n] = e^{j\theta} h^*[N-n]
+$$
+
+* 依照這個公式，我們可以進一步為FIR linear filter分成四種 type
+
+#### 3. Real-coefficient FIR Linear Phase Filter 的四種類型
+
+* 因為 h[n] 是實係數，所以 $h[n] = e^{j\theta} h^*[N-n]$ 可以退化成 $h[n] = \pm h[N-n]$
+* 因此 **real coefficient FIR filter *h[n]* 有 linear phase** iff **$h[n] = \pm h[N-n]$**
+    * 衍伸出四種 type
+
+<img width="783" height="797" alt="image" src="https://github.com/user-attachments/assets/e8198bae-b2a4-48b2-a6c5-69b01c9443a9" />   
+
+***
+
+### FIR Linear Phase Filter 的 zero point
+
 
