@@ -11,6 +11,57 @@
 * 而這個過去的輸出 $y[n-k]$ ，其實就是 **feedback**的意思
 
 
+# FIR 與 IIR 基本整理
+
+## 🔹 FIR (Finite Impulse Response Filter)
+
+### 定義
+- 脈衝響應長度有限（有限長度序列）。
+- 系統輸出僅依賴 **有限個輸入樣本**。
+- 無需回授 (no feedback)。
+
+### 數學形式
+$$
+y[n] = \sum_{k=0}^{M} b_k x[n-k]
+$$
+
+- 只有輸入項，沒有輸出回授項。
+- 本質上是一個 **有限長度的 convolution sum**。
+
+### Z-transform
+$$
+H(z) = \sum_{k=0}^{M} b_k z^{-k}
+$$
+
+- 只有分子多項式。
+- **沒有極點 (除了 z=0)**。
+
+
+---
+
+## 🔹 IIR (Infinite Impulse Response Filter)
+
+### 定義
+- 脈衝響應長度無限。
+- 系統輸出依賴 **當前輸入與過去輸出**（有回授 feedback）。
+
+### 數學形式
+$$
+y[n] = \sum_{k=0}^{M} b_k x[n-k] - \sum_{k=1}^{N} a_k y[n-k]
+$$
+
+- 第二項就是回授，讓響應變成無限長。
+
+### Z-transform
+$$
+H(z) = \frac{\sum_{k=0}^{M} b_k z^{-k}}{1 + \sum_{k=1}^{N} a_k z^{-k}}
+$$
+
+- 分子分母都有多項式。
+- 分母帶來 **極點 (poles)**，因此可能有無限長響應。
+
+***
+
 ### 在 FIR system 的定義裡，我們的系統不會有 feedback 的存在
 * 沒有 feedback -> 沒有過去的輸出 $y[n-k]$ -> 頻率響應的「分母」=1
 
@@ -39,6 +90,11 @@ $$
 
 ***
 
+## 🔹 線性相位 (Linear Phase) 條件
+
+### 定義
+- 如果頻率響應的相位為線性函數： $\angle H(e^{j\omega}) = \alpha \omega + \beta$ ，則輸出僅為「延遲 + 常數相位旋轉」，不會產生失真。
+  
 ## FIR linear phase filter 
 
 ### Linear Phase -> FIR linear phase filter 的四種 type
@@ -79,4 +135,60 @@ $$
     * 如果在 IIR 內考慮 linear phase，就會導致系統無法 causal stable
  
 ***
+
+## Filter design
+
+### 數學上常見的例子
+* FIR → 長度有限，例如在 time-domain 上的矩形脈衝 (rectangular pulse)。
+* Rational IIR → 有閉合形式，例如因果指數 (causal exponential)。
+* Non-rational IIR → 例如理想低通濾波器 (sinc)，無法用有限差分實現。
+
+### 設計方法：如何從「規格需求」得到濾波器係數。
+* IIR 設計方法：
+    * Continuous-time IIR Filter: (Butterworth, Chebyshev, Elliptic)。
+    * 利用 bilinear transform 或 impulse invariance 轉換到數位域。
+* FIR 設計方法：
+    * Window design (Hamming, Kaiser)。
+    * 最佳化法 (Parks–McClellan 演算法)。
+
+***
+
+## 設計 Continuous-time IIR Filter
+
+### 🔹 1. Butterworth Filter
+- **特性**：最大平坦 (Maximally flat)  
+  - 通帶內沒有波動，頻率響應盡可能平滑。  
+  - 阻帶衰減比較慢。  
+- **優點**：響應自然、平滑，適合對通帶要求平穩的應用（音訊）。  
+- **缺點**：要達到高衰減 → 階數要高。  
+<img width="228" height="152" alt="image" src="https://github.com/user-attachments/assets/69816497-5d74-4007-ac5b-7e7f69d74497" />
+
+---
+
+### 🔹 2. Chebyshev Filter
+分成兩種：
+
+#### Chebyshev Type I
+- **特性**：通帶有等波紋 (equiripple)，阻帶單調。  
+- **優點**：相較 Butterworth，在相同階數下，過渡區更窄。  
+- **缺點**：通帶會有波動 (ripple)。  
+<img width="318" height="173" alt="image" src="https://github.com/user-attachments/assets/52ec336f-1535-4e8b-b306-2411099ac576" />
+
+#### Chebyshev Type II
+- **特性**：通帶平坦，阻帶有等波紋。  
+- **優點**：避免通帶 ripple。  
+- **缺點**：設計較少用，因為阻帶 ripple 在很多應用不可接受。  
+<img width="197" height="114" alt="image" src="https://github.com/user-attachments/assets/192ade97-9914-406b-8141-01f7336f2a2c" />
+
+---
+
+### 🔹 3. Elliptic (Cauer) Filter
+- **特性**：通帶與阻帶都有等波紋 (equiripple)。  
+- **優點**：在相同階數下，過渡區最窄（效率最高）。  
+- **缺點**：通帶與阻帶 ripple 都存在，相位響應也不理想。
+
+<img width="309" height="114" alt="image" src="https://github.com/user-attachments/assets/19e9981f-7fff-4720-959f-72709d9b91ad" />  
+
+***
+
 
