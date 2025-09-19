@@ -1,6 +1,10 @@
-# DSP Knowledge
+ **Stability LTI system: ROC 包含單位圓**  
+ 
+ **Causal LTI system: ROC 在最外側的 pole 的外側**  
+ * 因為 causal system 為 right-side sequence，所以收斂範圍是在「圓外」
+ * 再加上**收斂範圍不可包含 pole**
 
-***
+ 
 
 # Ch2 Signal System
 
@@ -115,8 +119,8 @@ $$
 * Right-side sequence 的 ROC : 在最外側的 pole 的外側
 * Left-side sequence 的 ROC : 在最內側的 pole 的內側
 
-* Stability LTI system: ROC 包含單位圓
-* Causal LTI system: ROC 在最外側的 pole 的外側
+## Stability LTI system: ROC 包含單位圓
+## Causal LTI system: ROC 在最外側的 pole 的外側
 
 
 ### Zero and pole of rational system
@@ -165,6 +169,8 @@ $$
 
 * Zero phase : 不影響系統 e.g., Ideal lowpass filter (frequency domain上)
 * Linear phase : 在  time-domain 為 **delay**，代表輸出只是「輸入延遲 + 相位平移」，**不會造成波形失真**
+    * **Linear phase 只在 FIR考慮。不考慮 IIR 的情況**
+    * 如果在 IIR 內考慮 linear phase，就會導致系統無法 causal stable
 * Nonlinear phase : 需透過 **group delay**理解
     * group delay : 用來衡量相位響應是否「接近線性」，如果群延遲是常數，就代表相位是線性的。
 
@@ -212,4 +218,35 @@ $$
 
 ### FIR Linear Phase Filter 的 zero point
 
+* zeros 為 共軛倒數對 (conjugate reciprocal pair)： $\alpha_k \quad \text{and} \quad \frac{1}{\alpha_k^*}$
+* pole: $z = 0 \quad \text{or} \quad z = \infty$
+
+***
+
+### Allpass Filter
+### 定義
+A filter $H(z)$ is **allpass** if: $|H(e^{j\omega})| = C, \quad \forall \omega$
+
+* Allpass filter 不改變頻譜幅度，只改變相位
+
+### Zero 與 Pole 的關係: 所有零點與極點必須是「共軛倒數對 (conjugate reciprocal pair)」
+
+- Pole at $\alpha$  ↔  Zero at $\tfrac{1}{\alpha^*}$
+* 因為有 pole 存在，所以 allpass filter 大多為 IIR
+
+
+- 若系統 **causal & stable**：
+  - Poles 在單位圓內
+  - Zeros 在單位圓外
+
+* 因為 causal ROC 必須在最外 pole 的外側
+* 因為 stable ROC 必須包含單位圓
+
+---
+
+##　Ch6 Structure for Discrete-time System
+
+* FIR : Rectangular Pulse 
+* Ration IIR : Causal exponential
+* Non-Rational IIR : Idal lowpass
 
